@@ -1,13 +1,9 @@
-// graphql/schema.ts
-
-import { gql } from 'apollo-server-express';
-
 export const typeDefs = `
   type Expense {
     id: ID!
     name: String!
     category: String!
-    price: Float!
+    amount: Float!
     date: String!
   }
 

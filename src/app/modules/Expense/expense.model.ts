@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-interface IExpense extends Document {
+export interface IExpense extends Document {
   name: string;
   category: string;
   amount: number;
