@@ -10,21 +10,16 @@ export const resolvers = {
   Mutation: {
     createExpense: async (
       _: any,
-      { name, category, price }: { name: string; category: string; price: number },
+      { name, category, amount }: { name: string; category: string; amount: number },
     ) => {
-      try {
-        const newExpense = new Expense({ name, category, amount: price });
-        return await newExpense.save();
-      } catch (error) {
-        console.error('Error creating expense:', error);
-        throw new Error('Failed to create expense');
-      }
+      const newExpense = new Expense({ name, category, amount });
+      return await expenseService.createExpense(newExpense);
     },
     updateExpense: async (
       _: any,
-      { id, name, category, price }: { id: string; name?: string; category?: string; price?: number },
+      { id, name, category, amount }: { id: string; name?: string; category?: string; amount?: number },
     ) => {
-      return await expenseService.updateExpense(id, { name, category, amount: price });
+      return await expenseService.updateExpense(id, { name, category, amount });
     },
     deleteExpense: async (_: any, { id }: { id: string }) => {
       const deletedExpense = await expenseService.deleteExpense(id);

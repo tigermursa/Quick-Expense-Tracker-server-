@@ -13,8 +13,7 @@ export const typeDefs = `
   }
 
   type Mutation {
-    createExpense(name: String!, category: String!, price: Float!): Expense
-    updateExpense(id: ID!, name: String, category: String, price: Float): Expense
-    deleteExpense(id: ID!): String
-  }
+  createExpense(name: String!, category: String!, amount: Float!): Expense
+  updateExpense(id: ID!, name: String, category: String, amount: Float): Expense
+}
 `;
