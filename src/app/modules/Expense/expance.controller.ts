@@ -1,45 +1,51 @@
-import { Expense } from './expense.model';
+import { Expense, IExpense } from './expense.model';
 import * as expenseService from './expense.service';
 
-export const resolvers = {
-  Query: {
-    getAllExpenses: async () => await expenseService.getAllExpenses(),
-    getExpense: async (_: any, { id }: { id: string }) =>
-      await expenseService.getExpenseById(id),
-  },
-  Mutation: {
-    createExpense: async (
-      _: any,
-      {
-        name,
-        category,
-        price,
-      }: { name: string; category: string; price: number },
-    ) => {
-      const newExpense = new Expense({ name, category, amount: price });
-      return await expenseService.createExpense(newExpense);
-    },
-    updateExpense: async (
-      _: any,
-      {
-        id,
-        name,
-        category,
-        price,
-      }: { id: string; name?: string; category?: string; price?: number },
-    ) => {
-      const updatedExpense = await expenseService.updateExpense(id, {
-        name,
-        category,
-        amount: price,
-      });
-      return updatedExpense;
-    },
-    deleteExpense: async (_: any, { id }: { id: string }) => {
-      const deletedExpense = await expenseService.deleteExpense(id);
-      return deletedExpense
-        ? 'Expense deleted successfully'
-        : 'Expense not found';
-    },
-  },
+export const createExpense = async (name: string, category: string, amount: number): Promise<IExpense> => {
+  try {
+    const expenseData: IExpense = { name, category, amount, date: new Date() } as IExpense;
+    const newExpense = await expenseService.createExpense(expenseData);
+    return newExpense;
+  } catch (error) {
+    throw new Error(`Error creating expense:`);
+  }
+};
+
+export const getAllExpenses = async (): Promise<IExpense[]> => {
+  try {
+    return await expenseService.getAllExpenses();
+  } catch (error) {
+    throw new Error(`Error fetching expenses:`);
+  }
+};
+
+export const getExpenseById = async (id: string): Promise<IExpense | null> => {
+  try {
+    return await expenseService.getExpenseById(id);
+  } catch (error) {
+    throw new Error(`Error fetching expense by ID:`);
+  }
+};
+
+export const updateExpense = async (
+  id: string,
+  name?: string,
+  category?: string,
+  amount?: number,
+): Promise<IExpense | null> => {
+  try {
+    const updateData: Partial<IExpense> = { name, category, amount };
+    return await expenseService.updateExpense(id, updateData);
+  } catch (error) {
+    throw new Error(`Error updating expense:`);
+  }
+};
+
+export const deleteExpense = async (id: string): Promise<string> => {
+  try {
+    const deletedExpense = await expenseService.deleteExpense(id);
+    return deletedExpense ? 'Expense deleted successfully' : 'Expense not found';
+  } catch (error) {
+    throw new Error(`Error deleting expense:`);
+  }
 };
