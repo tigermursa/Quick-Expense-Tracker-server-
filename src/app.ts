@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import cors from 'cors';
-import expenseRoutes from './app/modules/Expense/expance.routes';
+import { ExpenseRoutes } from './app/modules/Expense/expance.routes';
 
 const app: Application = express();
 
@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 // Expense routes
-app.use('/api', expenseRoutes);
+app.use('/api', ExpenseRoutes);
 
 // Root route
 app.get('/', (req, res) => {
