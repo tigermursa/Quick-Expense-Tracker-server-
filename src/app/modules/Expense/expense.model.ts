@@ -1,16 +1,21 @@
 import mongoose, { Schema } from 'mongoose';
-import { IExpense } from './expence.interface';
+import { ExpenseCategory, IExpense } from './expence.interface';
+
 
 const ExpenseSchema: Schema = new Schema(
   {
     name: { type: String, required: true },
-    category: { type: String, required: true },
-    amount: { type: Number, required: true, min: 0 }, // Prevent negative values
-    date: { type: Date, default: Date.now },
+    category: {
+      type: String,
+      enum: Object.values(ExpenseCategory), // Restrict to enum values
+      required: true,
+    },
+    amount: { type: Number, required: true, min: 0 }, // Ensure positive amounts
+    date: { type: Date, default: Date.now }, // Automatically set to current date
   },
   {
-    timestamps: true, // Adds createdAt and updatedAt timestamps
-  },
+    timestamps: true, // Adds createdAt and updatedAt
+  }
 );
 
 export const Expense = mongoose.model<IExpense>('Expense', ExpenseSchema);
