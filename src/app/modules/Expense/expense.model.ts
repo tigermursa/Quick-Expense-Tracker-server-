@@ -1,11 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
-
-export interface IExpense extends Document {
-  name: string;
-  category: string;
-  amount: number;
-  date: Date;
-}
+import mongoose, { Schema } from 'mongoose';
+import { IExpense } from './expence.interface';
 
 const ExpenseSchema: Schema = new Schema({
   name: { type: String, required: true },

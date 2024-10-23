@@ -1,51 +1,66 @@
-import { Expense, IExpense } from './expense.model';
-import * as expenseService from './expense.service';
+import { Request, Response } from 'express';
+import { expenseService } from './expense.service';
 
-export const createExpense = async (name: string, category: string, amount: number): Promise<IExpense> => {
+// Create a new expense
+const createExpense = async (req: Request, res: Response) => {
+  const { name, category, amount } = req.body;
   try {
-    const expenseData: IExpense = { name, category, amount, date: new Date() } as IExpense;
-    const newExpense = await expenseService.createExpense(expenseData);
-    return newExpense;
+    const newExpense = await expenseService.createExpense({ name, category, amount, date: new Date() });
+    return res.status(201).json(newExpense);
   } catch (error) {
-    throw new Error(`Error creating expense:`);
+    return res.status(500).json({ error: 'Error creating expense' });
   }
 };
 
-export const getAllExpenses = async (): Promise<IExpense[]> => {
+// Get all expenses
+const getAllExpenses = async (req: Request, res: Response) => {
   try {
-    return await expenseService.getAllExpenses();
+    const expenses = await expenseService.getAllExpenses();
+    return res.status(200).json(expenses);
   } catch (error) {
-    throw new Error(`Error fetching expenses:`);
+    return res.status(500).json({ error: 'Error fetching expenses' });
   }
 };
 
-export const getExpenseById = async (id: string): Promise<IExpense | null> => {
+// Get a single expense by ID
+const getExpenseById = async (req: Request, res: Response) => {
+  const { id } = req.params;
   try {
-    return await expenseService.getExpenseById(id);
+    const expense = await expenseService.getExpenseById(id);
+    return expense ? res.status(200).json(expense) : res.status(404).json({ error: 'Expense not found' });
   } catch (error) {
-    throw new Error(`Error fetching expense by ID:`);
+    return res.status(500).json({ error: 'Error fetching expense by ID' });
   }
 };
 
-export const updateExpense = async (
-  id: string,
-  name?: string,
-  category?: string,
-  amount?: number,
-): Promise<IExpense | null> => {
+// Update an expense
+const updateExpense = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { name, category, amount } = req.body;
   try {
-    const updateData: Partial<IExpense> = { name, category, amount };
-    return await expenseService.updateExpense(id, updateData);
+    const updatedExpense = await expenseService.updateExpense(id, { name, category, amount });
+    return updatedExpense ? res.status(200).json(updatedExpense) : res.status(404).json({ error: 'Expense not found' });
   } catch (error) {
-    throw new Error(`Error updating expense:`);
+    return res.status(500).json({ error: 'Error updating expense' });
   }
 };
 
-export const deleteExpense = async (id: string): Promise<string> => {
+// Delete an expense
+const deleteExpense = async (req: Request, res: Response) => {
+  const { id } = req.params;
   try {
     const deletedExpense = await expenseService.deleteExpense(id);
-    return deletedExpense ? 'Expense deleted successfully' : 'Expense not found';
+    return deletedExpense ? res.status(200).json({ message: 'Expense deleted' }) : res.status(404).json({ error: 'Expense not found' });
   } catch (error) {
-    throw new Error(`Error deleting expense:`);
+    return res.status(500).json({ error: 'Error deleting expense' });
   }
+};
+
+// Grouped export
+export const expenseController = {
+  createExpense,
+  getAllExpenses,
+  getExpenseById,
+  updateExpense,
+  deleteExpense,
 };
