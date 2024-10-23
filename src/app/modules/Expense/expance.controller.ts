@@ -3,61 +3,65 @@ import { expenseService } from './expense.service';
 import { IExpense } from './expence.interface';
 
 // Create a new expense
-const createExpense = async (req: Request, res: Response): Promise<void> => {
+const createExpense = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   try {
     const expenseData: IExpense = req.body;
 
-    // Call the service to create the expense
     const newExpense = await expenseService.createExpense(expenseData);
 
-    // Send success response
-    res.status(201).json({
+    return res.status(201).json({
       message: 'Expense created successfully',
       data: newExpense,
     });
   } catch (error) {
-    // Type-checking the error
-    if (error instanceof Error) {
-      res.status(500).json({
-        message: 'Failed to create expense',
-        error: error.message,
-      });
-    } else {
-      res.status(500).json({
-        message: 'Failed to create expense',
-        error: 'Unknown error occurred',
-      });
-    }
+    return handleError(res, error, 'Failed to create expense');
   }
 };
 
 // Get all expenses
-const getAllExpenses = async (req: Request, res: Response) => {
+const getAllExpenses = async (
+  _req: Request,
+  res: Response,
+): Promise<Response> => {
   try {
     const expenses = await expenseService.getAllExpenses();
-    return res.status(200).json(expenses);
+    return res
+      .status(200)
+      .json({ message: 'Expenses fetched successfully', data: expenses });
   } catch (error) {
-    return res.status(500).json({ error: 'Error fetching expenses' });
+    return handleError(res, error, 'Error fetching expenses');
   }
 };
 
 // Get a single expense by ID
-const getExpenseById = async (req: Request, res: Response) => {
+const getExpenseById = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const { id } = req.params;
   try {
     const expense = await expenseService.getExpenseById(id);
     return expense
-      ? res.status(200).json(expense)
-      : res.status(404).json({ error: 'Expense not found' });
+      ? res
+          .status(200)
+          .json({ message: 'Expense fetched successfully', data: expense })
+      : res.status(404).json({ message: 'Expense not found' });
   } catch (error) {
-    return res.status(500).json({ error: 'Error fetching expense by ID' });
+    return handleError(res, error, 'Error fetching expense by ID');
   }
 };
 
 // Update an expense
-const updateExpense = async (req: Request, res: Response) => {
+const updateExpense = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const { id } = req.params;
   const { name, category, amount } = req.body;
+
   try {
     const updatedExpense = await expenseService.updateExpense(id, {
       name,
@@ -65,24 +69,50 @@ const updateExpense = async (req: Request, res: Response) => {
       amount,
     });
     return updatedExpense
-      ? res.status(200).json(updatedExpense)
-      : res.status(404).json({ error: 'Expense not found' });
+      ? res
+          .status(200)
+          .json({
+            message: 'Expense updated successfully',
+            data: updatedExpense,
+          })
+      : res.status(404).json({ message: 'Expense not found' });
   } catch (error) {
-    return res.status(500).json({ error: 'Error updating expense' });
+    return handleError(res, error, 'Error updating expense');
   }
 };
 
 // Delete an expense
-const deleteExpense = async (req: Request, res: Response) => {
+const deleteExpense = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const { id } = req.params;
   try {
     const deletedExpense = await expenseService.deleteExpense(id);
     return deletedExpense
-      ? res.status(200).json({ message: 'Expense deleted' })
-      : res.status(404).json({ error: 'Expense not found' });
+      ? res.status(200).json({ message: 'Expense deleted successfully' })
+      : res.status(404).json({ message: 'Expense not found' });
   } catch (error) {
-    return res.status(500).json({ error: 'Error deleting expense' });
+    return handleError(res, error, 'Error deleting expense');
   }
+};
+
+// Helper function for error handling
+const handleError = (
+  res: Response,
+  error: unknown,
+  defaultMsg: string,
+): Response => {
+  if (error instanceof Error) {
+    return res.status(500).json({
+      message: defaultMsg,
+      error: error.message,
+    });
+  }
+  return res.status(500).json({
+    message: defaultMsg,
+    error: 'Unknown error occurred',
+  });
 };
 
 // Grouped export

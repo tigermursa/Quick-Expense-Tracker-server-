@@ -4,5 +4,5 @@ export interface IExpense extends Document {
   name: string;
   category: string;
   amount: number;
-  date: Date;
+  date?: Date;
 }
