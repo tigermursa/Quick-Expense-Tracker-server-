@@ -11,7 +11,6 @@ const ExpenseSchema: Schema = new Schema(
       required: true,
     },
     amount: { type: Number, required: true, min: 0 }, // Ensure positive amounts
-    date: { type: Date, default: Date.now }, // Automatically set to current date
   },
   {
     timestamps: true, // Adds createdAt and updatedAt

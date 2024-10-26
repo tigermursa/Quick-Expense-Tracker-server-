@@ -13,6 +13,5 @@ export interface IExpense extends Document {
   _id: ObjectId;
   name: string;
   category: ExpenseCategory;
-  amount: number;
-  date?: Date; 
+  amount: number; 
 }
