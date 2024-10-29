@@ -7,6 +7,7 @@ import dotenv from 'dotenv'; // Environment variables
 import ExpenseRoutes from './app/modules/Expense/expance.routes';
 import CategoryRoutes from './app/modules/Category/category.routes';
 import AuthRoutes from './app/modules/Auth/auth.routes';
+import UsersRoutes from './app/modules/User/user.routes';
 import cookieParser from 'cookie-parser';
 // Initialize environment variables
 dotenv.config();
@@ -37,6 +38,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 app.use('/api/v1', ExpenseRoutes);
 app.use('/api/v2/', CategoryRoutes);
 app.use('/api/v3/', AuthRoutes);
+app.use('/api/v4/', UsersRoutes);
 
 // Root route
 app.get('/', (req: Request, res: Response) => {
