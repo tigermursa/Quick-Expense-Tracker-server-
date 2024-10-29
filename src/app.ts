@@ -6,6 +6,7 @@ import morgan from 'morgan'; // Logging
 import dotenv from 'dotenv'; // Environment variables
 import ExpenseRoutes from './app/modules/Expense/expance.routes';
 import CategoryRoutes from './app/modules/Category/category.routes';
+import AuthRoutes from './app/modules/Auth/auth.routes';
 
 // Initialize environment variables
 dotenv.config();
@@ -35,7 +36,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 // API Routes
 app.use('/api/v1', ExpenseRoutes);
 app.use('/api/v2/', CategoryRoutes);
-app.use('/api/v3/', CategoryRoutes);
+app.use('/api/v3/', AuthRoutes);
 
 // Root route
 app.get('/', (req: Request, res: Response) => {

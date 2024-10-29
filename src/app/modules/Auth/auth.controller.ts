@@ -3,7 +3,7 @@ import { register, login, createToken } from './auth.service';
 import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import { User } from '../User/user.model';
-
+import config from '../../config/index';
 // Register new user
 export const registerUser = async (
   req: Request,
@@ -11,9 +11,10 @@ export const registerUser = async (
 ): Promise<Response> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res
-      .status(400)
-      .json({ message: 'Validation failed', errors: errors.array() });
+    return res.status(400).json({
+      message: 'Validation failed',
+      errors: errors.array(),
+    });
   }
 
   const { name, email, password } = req.body;
@@ -23,14 +24,16 @@ export const registerUser = async (
 
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // use secure cookies in production
-      maxAge: 15 * 60 * 1000, // 15 minutes
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 15 * 60 * 1000,
+      sameSite: 'lax',
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
     });
 
     return res.status(201).json({
@@ -69,12 +72,14 @@ export const loginUser = async (
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 15 * 60 * 1000,
+      sameSite: 'lax',
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
     });
 
     return res.status(200).json({ message: 'Logged in successfully' });
@@ -82,10 +87,10 @@ export const loginUser = async (
     if (error instanceof Error) {
       return res
         .status(500)
-        .json({ message: 'Error registering user', error: error.message });
+        .json({ message: 'Error logging in', error: error.message });
     }
     return res.status(500).json({
-      message: 'Error registering user',
+      message: 'Error logging in',
       error: 'An unexpected error occurred',
     });
   }
@@ -99,7 +104,6 @@ export const logoutUser = (req: Request, res: Response): Response => {
 };
 
 // Refresh token
-// Refresh token
 export const refreshToken = async (
   req: Request,
   res: Response,
@@ -112,22 +116,21 @@ export const refreshToken = async (
   try {
     const decoded = jwt.verify(
       refreshToken,
-      process.env.JWT_SECRET || 'your_jwt_secret',
+      config.jwtSecret!,
     ) as jwt.JwtPayload;
 
-    // Fetch user from the database using the ID from the decoded token
     const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(403).json({ message: 'Invalid refresh token' });
     }
 
-    // Create tokens using the user object
     const tokens = createToken(user);
 
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 15 * 60 * 1000,
+      sameSite: 'lax',
     });
 
     return res.status(200).json({ message: 'Token refreshed successfully' });
