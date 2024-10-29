@@ -34,7 +34,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 // API Routes
 app.use('/api/v1', ExpenseRoutes);
-app.use('/api/v1/categories', CategoryRoutes);
+app.use('/api/v2/', CategoryRoutes);
+app.use('/api/v3/', CategoryRoutes);
 
 // Root route
 app.get('/', (req: Request, res: Response) => {
