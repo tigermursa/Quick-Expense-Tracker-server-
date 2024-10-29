@@ -7,7 +7,7 @@ import dotenv from 'dotenv'; // Environment variables
 import ExpenseRoutes from './app/modules/Expense/expance.routes';
 import CategoryRoutes from './app/modules/Category/category.routes';
 import AuthRoutes from './app/modules/Auth/auth.routes';
-
+import cookieParser from 'cookie-parser';
 // Initialize environment variables
 dotenv.config();
 
@@ -24,7 +24,7 @@ app.use(
     max: 100, // Limit each IP to 100 requests per windowMs
   }),
 );
-
+app.use(cookieParser());
 // Global Error Handling Middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);

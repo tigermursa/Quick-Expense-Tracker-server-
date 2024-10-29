@@ -24,14 +24,14 @@ export const registerUser = async (
 
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false,
       maxAge: 15 * 60 * 1000,
       sameSite: 'lax',
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: 'lax',
     });
@@ -70,14 +70,14 @@ export const loginUser = async (
 
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false,
       maxAge: 15 * 60 * 1000,
       sameSite: 'lax',
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: 'lax',
     });
@@ -108,7 +108,7 @@ export const refreshToken = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
-  const refreshToken = req.cookies.refreshToken;
+  const refreshToken = req.cookies?.refreshToken;
   if (!refreshToken) {
     return res.status(401).json({ message: 'Refresh token missing' });
   }
@@ -128,7 +128,7 @@ export const refreshToken = async (
 
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure:false,
       maxAge: 15 * 60 * 1000,
       sameSite: 'lax',
     });
