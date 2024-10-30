@@ -6,4 +6,5 @@ export interface IExpense extends Document {
   category: string;
   amount: number;
   userId: string;
+  createdAt?: Date;
 }
