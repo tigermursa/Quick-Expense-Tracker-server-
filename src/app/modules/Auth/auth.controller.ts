@@ -82,7 +82,10 @@ export const loginUser = async (
       sameSite: 'lax',
     });
 
-    return res.status(200).json({ message: 'Logged in successfully' });
+    return res.status(200).json({
+      message: 'Logged in successfully',
+      userId: user._id,
+    });
   } catch (error: unknown) {
     if (error instanceof Error) {
       return res

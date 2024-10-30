@@ -17,7 +17,14 @@ const app: Application = express();
 // Middleware
 app.use(express.json()); // Parse incoming JSON requests
 app.use(helmet()); // Set security-related HTTP headers
-app.use(cors({ origin: process.env.CORS_ORIGIN || '*' })); // Configure allowed domains for CORS
+app.use(
+  cors({
+    origin: 'http://localhost:3000', // Allow only this origin
+    credentials: true, // If you are sending cookies or authentication data
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+  }),
+);
 app.use(morgan('dev')); // Request logging
 app.use(
   rateLimit({
@@ -36,9 +43,9 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 // API Routes
 app.use('/api/v1', ExpenseRoutes);
-app.use('/api/v2/', CategoryRoutes);
+app.use('/api/v2', CategoryRoutes);
 app.use('/api/v3/', AuthRoutes);
-app.use('/api/v4/', UsersRoutes);
+app.use('/api/v4', UsersRoutes);
 
 // Root route
 app.get('/', (req: Request, res: Response) => {
