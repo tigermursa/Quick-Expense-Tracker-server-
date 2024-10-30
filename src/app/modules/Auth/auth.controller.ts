@@ -4,6 +4,25 @@ import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import { User } from '../User/user.model';
 import config from '../../config/index';
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Helper function to set cookies based on the environment
+const setCookie = (
+  res: Response,
+  name: string,
+  value: string,
+  maxAge: number,
+) => {
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    maxAge,
+    sameSite: isProduction ? 'none' : ('lax' as 'lax' | 'none'),
+  };
+  res.cookie(name, value, cookieOptions);
+};
+
 // Register new user
 export const registerUser = async (
   req: Request,
@@ -22,19 +41,14 @@ export const registerUser = async (
     const newUser = await register(name, email, password);
     const tokens = createToken(newUser);
 
-    res.cookie('accessToken', tokens.accessToken, {
-      httpOnly: true,
-      secure: false,
-      maxAge: 15 * 60 * 1000,
-      sameSite: 'lax',
-    });
-
-    res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: false,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'lax',
-    });
+    // Use the helper function to set cookies dynamically
+    setCookie(res, 'accessToken', tokens.accessToken, 15 * 60 * 1000);
+    setCookie(
+      res,
+      'refreshToken',
+      tokens.refreshToken,
+      7 * 24 * 60 * 60 * 1000,
+    );
 
     return res.status(201).json({
       message: 'User registered successfully',
@@ -68,19 +82,14 @@ export const loginUser = async (
 
     const tokens = createToken(user);
 
-    res.cookie('accessToken', tokens.accessToken, {
-      httpOnly: true,
-      secure: false,
-      maxAge: 15 * 60 * 1000,
-      sameSite: 'lax',
-    });
-
-    res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: false,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'lax',
-    });
+    // Use the helper function to set cookies dynamically
+    setCookie(res, 'accessToken', tokens.accessToken, 15 * 60 * 1000);
+    setCookie(
+      res,
+      'refreshToken',
+      tokens.refreshToken,
+      7 * 24 * 60 * 60 * 1000,
+    );
 
     return res.status(200).json({
       message: 'Logged in successfully',
@@ -129,12 +138,8 @@ export const refreshToken = async (
 
     const tokens = createToken(user);
 
-    res.cookie('accessToken', tokens.accessToken, {
-      httpOnly: true,
-      secure:false,
-      maxAge: 15 * 60 * 1000,
-      sameSite: 'lax',
-    });
+    // Use the helper function to set cookies dynamically
+    setCookie(res, 'accessToken', tokens.accessToken, 15 * 60 * 1000);
 
     return res.status(200).json({ message: 'Token refreshed successfully' });
   } catch (error) {
