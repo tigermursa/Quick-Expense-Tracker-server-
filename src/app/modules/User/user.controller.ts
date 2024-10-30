@@ -24,8 +24,9 @@ const getUserById = async (req: Request, res: Response): Promise<Response> => {
       ? res.status(200).json({
           message: 'User fetched successfully',
           data: user,
+          status:"200"
         })
-      : res.status(404).json({ message: 'User not found' });
+      : res.status(404).json({ message: 'User not found',status:"404" });
   } catch (error) {
     return handleError(res, error, 'Error fetching user by ID');
   }

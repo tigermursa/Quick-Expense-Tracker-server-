@@ -49,7 +49,7 @@ app.use('/api/v4', UsersRoutes);
 
 // Root route
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World! Welcome to the Expense Tracker API!');
+  res.send('The Qucik Expense tracker server running 827');
 });
 
 export default app;

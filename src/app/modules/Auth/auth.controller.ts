@@ -22,19 +22,19 @@ export const registerUser = async (
   try {
     const newUser = await register(name, email, password);
     const tokens = createToken(newUser);
-    //! 1
+
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
-      secure: true,
+      secure: false,
       maxAge: 15 * 60 * 1000,
-      sameSite: 'none',
+      sameSite: 'lax',
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'none',
+      sameSite: 'lax',
     });
 
     return res.status(201).json({
@@ -68,19 +68,19 @@ export const loginUser = async (
     }
 
     const tokens = createToken(user);
-    //!2
+
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
-      secure: true,
+      secure: false,
       maxAge: 15 * 60 * 1000,
-      sameSite: 'none',
+      sameSite: 'lax',
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'none',
+      sameSite: 'lax',
     });
 
     return res.status(200).json({
@@ -129,12 +129,12 @@ export const refreshToken = async (
     }
 
     const tokens = createToken(user);
-    //!3
+
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
-      secure: true,
+      secure: false,
       maxAge: 15 * 60 * 1000,
-      sameSite: 'none',
+      sameSite: 'lax',
     });
 
     return res.status(200).json({ message: 'Token refreshed successfully' });
