@@ -22,19 +22,19 @@ export const registerUser = async (
   try {
     const newUser = await register(name, email, password);
     const tokens = createToken(newUser);
-
+    //! 1
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       maxAge: 15 * 60 * 1000,
-      sameSite: 'lax',
+      sameSite: 'none',
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'lax',
+      sameSite: 'none',
     });
 
     return res.status(201).json({
@@ -54,7 +54,7 @@ export const registerUser = async (
   }
 };
 
-// Login user
+//! Login user
 export const loginUser = async (
   req: Request,
   res: Response,
@@ -68,19 +68,19 @@ export const loginUser = async (
     }
 
     const tokens = createToken(user);
-
+    //!2
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
-      secure: false,
-      maxAge: 15 * 60 * 1000,
-      sameSite: 'lax',
+      secure: true,
+      maxAge: 60 * 60 * 1000,
+      sameSite: 'strict',
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'lax',
+      sameSite: 'strict',
     });
 
     return res.status(200).json({
@@ -107,7 +107,7 @@ export const logoutUser = (req: Request, res: Response): Response => {
   return res.status(200).json({ message: 'Logged out successfully' });
 };
 
-// Refresh token
+//! Refresh token
 export const refreshToken = async (
   req: Request,
   res: Response,
@@ -129,12 +129,12 @@ export const refreshToken = async (
     }
 
     const tokens = createToken(user);
-
+    //!3
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       maxAge: 15 * 60 * 1000,
-      sameSite: 'lax',
+      sameSite: 'none',
     });
 
     return res.status(200).json({ message: 'Token refreshed successfully' });

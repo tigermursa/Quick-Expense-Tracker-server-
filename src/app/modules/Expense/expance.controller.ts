@@ -147,44 +147,63 @@ const getExpensesByDateRange = async (
 ): Promise<Response> => {
   const { userId, startDate, endDate } = req.body;
 
-  // Log the input request to see if we're receiving it correctly
-  console.log('Request Body:', req.body);
+  // Check if all required fields are provided
+  if (!userId || !startDate || !endDate) {
+    return res.status(400).json({
+      message: 'Missing required fields: userId, startDate, or endDate',
+    });
+  }
+
+  // Parse dates
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const today = new Date();
+
+  // Check if parsed dates are valid
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return res.status(400).json({ message: 'Invalid date format' });
+  }
+
+  // Check if startDate is after endDate
+  if (start > end) {
+    return res.status(400).json({
+      message: 'Start date must be on or before the end date',
+    });
+  }
+
+  // Handle future date ranges
+  if (start > today) {
+    return res.status(200).json({
+      message: 'The selected date range is in the future',
+      total: 0,
+      data: [],
+    });
+  }
+
+  // Ensure endDate is not after today if querying up to the current date
+  const adjustedEndDate = end > today ? today : end;
 
   try {
-    // Log before converting dates to ensure correct values are passed
-    console.log('userId:', userId);
-    console.log('startDate:', startDate);
-    console.log('endDate:', endDate);
-
-    // Check if the userId, startDate, and endDate are valid
-    if (!userId || !startDate || !endDate) {
-      return res.status(400).json({
-        message: 'Missing required fields: userId, startDate, or endDate',
-      });
-    }
-
-    // Convert startDate and endDate to Date objects
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    // Log the converted dates
-    console.log('Parsed startDate:', start);
-    console.log('Parsed endDate:', end);
-
-    // Fetch data from the service
     const result = await expenseService.getExpensesByDateRange(
       userId,
       start,
-      end,
+      adjustedEndDate,
     );
+
+    if (result.expenses.length === 0) {
+      return res.status(200).json({
+        message: 'No expenses found for the selected date range',
+        total: 0,
+        data: [],
+      });
+    }
 
     return res.status(200).json({
       message: 'Expenses fetched successfully',
-      total: result.total, // Total amount of expenses
-      data: result.expenses, // Array of expenses
+      total: result.total,
+      data: result.expenses,
     });
   } catch (error) {
-    // Log the error for debugging
     console.error('Error in getExpensesByDateRange:', error);
     return handleError(
       res,
@@ -193,6 +212,26 @@ const getExpensesByDateRange = async (
     );
   }
 };
+
+// Get expense summary for all-time, last 7 days, and last 30 days by userId
+const getExpenseSummaryByUserId = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
+  const { userId } = req.params;
+
+  try {
+    const summary = await expenseService.getExpenseSummaryByUserId(userId);
+
+    return res.status(200).json({
+      message: 'Expense summary fetched successfully',
+      data: summary,
+    });
+  } catch (error) {
+    return handleError(res, error, 'Error fetching expense summary');
+  }
+};
+
 // Grouped export
 export const expenseController = {
   createExpense,
@@ -202,4 +241,5 @@ export const expenseController = {
   deleteExpense,
   getExpensesByUserId,
   getExpensesByDateRange,
+  getExpenseSummaryByUserId,
 };
