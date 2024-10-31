@@ -33,6 +33,7 @@ const getExpensesByUserId = async (userId: string): Promise<IExpense[]> => {
   return await Expense.find({ userId }).sort({ createdAt: -1 });
 };
 
+//get all byt date range
 const getExpensesByDateRange = async (
   userId: string,
   startDate: Date,

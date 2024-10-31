@@ -113,6 +113,7 @@ const handleError = (
   });
 };
 
+// specific uer total expense
 const getExpensesByUserId = async (
   req: Request,
   res: Response,
@@ -120,9 +121,18 @@ const getExpensesByUserId = async (
   const { userId } = req.params; // Get userId from the request parameters
 
   try {
+    // Fetch expenses for the specified userId
     const expenses = await expenseService.getExpensesByUserId(userId);
+
+    // Calculate total amount by summing the 'amount' field of each expense
+    const totalAmount = expenses.reduce(
+      (sum, expense) => sum + expense.amount,
+      0,
+    );
+
     return res.status(200).json({
       message: 'Expenses fetched successfully',
+      totalAmount,
       data: expenses,
     });
   } catch (error) {
@@ -148,11 +158,9 @@ const getExpensesByDateRange = async (
 
     // Check if the userId, startDate, and endDate are valid
     if (!userId || !startDate || !endDate) {
-      return res
-        .status(400)
-        .json({
-          message: 'Missing required fields: userId, startDate, or endDate',
-        });
+      return res.status(400).json({
+        message: 'Missing required fields: userId, startDate, or endDate',
+      });
     }
 
     // Convert startDate and endDate to Date objects

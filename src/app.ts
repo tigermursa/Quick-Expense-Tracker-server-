@@ -1,7 +1,7 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet'; // Security headers
-import rateLimit from 'express-rate-limit'; // Rate limiter for basic DDoS protection
+//import rateLimit from 'express-rate-limit'; // Rate limiter for basic DDoS protection
 import morgan from 'morgan'; // Logging
 import dotenv from 'dotenv'; // Environment variables
 import ExpenseRoutes from './app/modules/Expense/expance.routes';
@@ -26,12 +26,12 @@ app.use(
   }),
 );
 app.use(morgan('dev')); // Request logging
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
-  }),
-);
+// app.use(
+//   rateLimit({
+//     windowMs: 15 * 60 * 1000, // 15 minutes
+//     max: 100, // Limit each IP to 100 requests per windowMs
+//   }),
+// );
 app.use(cookieParser());
 // Global Error Handling Middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
