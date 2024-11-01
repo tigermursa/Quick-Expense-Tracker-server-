@@ -19,7 +19,7 @@ app.use(express.json()); // Parse incoming JSON requests
 app.use(helmet()); // Set security-related HTTP headers
 app.use(
   cors({
-    origin: 'http://localhost:3000', // Allow only this origin
+    origin: 'https://quickexpencetracker.vercel.app', // Allow only this origin
     credentials: true, // If you are sending cookies or authentication data
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
@@ -49,7 +49,7 @@ app.use('/api/v4', UsersRoutes);
 
 // Root route
 app.get('/', (req: Request, res: Response) => {
-  res.send('The Qucik Expense tracker server running 827');
+  res.send('The Qucik Expense tracker server running 515');
 });
 
 export default app;
