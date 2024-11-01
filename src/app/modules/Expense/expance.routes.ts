@@ -5,7 +5,7 @@ import { authenticateToken } from '../../middlewares/authMiddleware';
 const router = Router();
 
 // Define routes
-router.post('/expenses', authenticateToken, expenseController.createExpense);
+router.post('/expenses', expenseController.createExpense);
 router.get('/expenses', authenticateToken, expenseController.getAllExpenses);
 router.get(
   '/expenses/:id',
