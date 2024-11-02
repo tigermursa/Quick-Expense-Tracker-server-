@@ -19,7 +19,7 @@ app.use(express.json()); // Parse incoming JSON requests
 app.use(helmet()); // Set security-related HTTP headers
 app.use(
   cors({
-    origin: 'https://quickexpencetracker.vercel.app', // Allow only this origin
+    origin: ['https://quickexpencetracker.vercel.app', 'http://localhost:3000'], // Allow only this origin
     credentials: true, // If you are sending cookies or authentication data
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
