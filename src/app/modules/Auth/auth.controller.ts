@@ -15,7 +15,7 @@ const setAccessTokenCookie = (res: Response, accessToken: string) => {
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
     secure: true,
-    maxAge: 15 * 60 * 1000, // 15 minutes
+    maxAge: 300 * 60 * 1000, // 15 minutes
     sameSite: 'none',
   });
 };
