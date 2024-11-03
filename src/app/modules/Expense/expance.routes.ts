@@ -26,6 +26,7 @@ router.get(
 );
 router.get(
   '/expenses/home/summary/:userId',
+  authenticateToken,
   expenseController.getExpenseSummaryByUserId,
 );
 router.post(
