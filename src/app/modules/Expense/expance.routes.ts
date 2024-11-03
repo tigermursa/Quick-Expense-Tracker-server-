@@ -18,6 +18,7 @@ router.delete(
   authenticateToken,
   expenseController.deleteExpense,
 );
+//all the expanse of user
 router.get(
   '/users/:userId',
   authenticateToken,
@@ -25,7 +26,6 @@ router.get(
 );
 router.get(
   '/expenses/home/summary/:userId',
-  authenticateToken,
   expenseController.getExpenseSummaryByUserId,
 );
 router.post(

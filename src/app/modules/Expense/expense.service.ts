@@ -64,6 +64,9 @@ const getExpensesByDateRange = async (
 // Get expense summary by userId with totals for all-time, last 7 days, and last 30 days
 const getExpenseSummaryByUserId = async (userId: string) => {
   const today = new Date();
+  const startOfDay = new Date(today.setHours(0, 0, 0, 0)); // Start of current day
+  const endOfDay = new Date(today.setHours(23, 59, 59, 999)); // End of current day
+
   const last7Days = new Date(today);
   last7Days.setDate(today.getDate() - 7);
 
@@ -77,23 +80,48 @@ const getExpenseSummaryByUserId = async (userId: string) => {
   }
 
   // Aggregation pipeline to fetch and group expenses by date range
-  const [allTimeTotal, last7DaysTotal, last30DaysTotal, uniqueDays] = await Promise.all([
+  const [
+    allTimeTotal,
+    last7DaysTotal,
+    last30DaysTotal,
+    todayTotal,
+    todayExpenses,
+    uniqueDays,
+  ] = await Promise.all([
+    // All-time total
     Expense.aggregate([
       { $match: { userId } },
       { $group: { _id: null, total: { $sum: '$amount' } } },
     ]),
+    // Last 7 days total
     Expense.aggregate([
       { $match: { userId, createdAt: { $gte: last7Days } } },
       { $group: { _id: null, total: { $sum: '$amount' } } },
     ]),
+    // Last 30 days total
     Expense.aggregate([
       { $match: { userId, createdAt: { $gte: last30Days } } },
       { $group: { _id: null, total: { $sum: '$amount' } } },
     ]),
+    // Today's total
+    Expense.aggregate([
+      { $match: { userId, createdAt: { $gte: startOfDay, $lte: endOfDay } } },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]),
+    // List of today's expenses
+    Expense.find({
+      userId,
+      createdAt: { $gte: startOfDay, $lte: endOfDay },
+    }).sort({ createdAt: -1 }), // Sort by latest expense
+    // Count of unique days with expenses
     Expense.aggregate([
       { $match: { userId } },
-      { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } } } },
-      { $count: "daysData" },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        },
+      },
+      { $count: 'daysData' },
     ]),
   ]);
 
@@ -101,7 +129,9 @@ const getExpenseSummaryByUserId = async (userId: string) => {
     allTimeTotal: allTimeTotal[0]?.total || 0,
     last7DaysTotal: last7DaysTotal[0]?.total || 0,
     last30DaysTotal: last30DaysTotal[0]?.total || 0,
-    daysData: uniqueDays[0]?.daysData || 0, // Number of unique days with expenses
+    todayTotal: todayTotal[0]?.total || 0,
+    todayExpenses, // List of today's expenses
+    uniqueDays: uniqueDays[0]?.daysData || 0,
   };
 };
 
