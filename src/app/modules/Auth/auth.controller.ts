@@ -1,9 +1,24 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { register, login, createToken } from './auth.service';
 import { validationResult } from 'express-validator';
-import jwt from 'jsonwebtoken';
-import { User } from '../User/user.model';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+
 import config from '../../config/index';
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: string | JwtPayload;
+  }
+}
+// Helper to set access token cookie
+const setAccessTokenCookie = (res: Response, accessToken: string) => {
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    secure: true,
+    maxAge: 15 * 60 * 1000, // 15 minutes
+    sameSite: 'none',
+  });
+};
 
 // Register new user
 export const registerUser = async (
@@ -21,40 +36,24 @@ export const registerUser = async (
   const { name, email, password } = req.body;
   try {
     const newUser = await register(name, email, password);
-    const tokens = createToken(newUser);
-    //! 1
-    res.cookie('accessToken', tokens.accessToken, {
-      httpOnly: true,
-      secure: true,
-      maxAge: 15 * 60 * 1000,
-      sameSite: 'none',
-    });
+    const { accessToken } = createToken(newUser);
 
-    res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'none',
-    });
+    setAccessTokenCookie(res, accessToken);
 
     return res.status(201).json({
       message: 'User registered successfully',
       data: { name: newUser.name, email: newUser.email },
     });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return res
-        .status(500)
-        .json({ message: 'Error registering user', error: error.message });
-    }
+  } catch (error) {
     return res.status(500).json({
       message: 'Error registering user',
-      error: 'An unexpected error occurred',
+      error:
+        error instanceof Error ? error.message : 'An unexpected error occurred',
     });
   }
 };
 
-//! Login user
+// Login user
 export const loginUser = async (
   req: Request,
   res: Response,
@@ -67,35 +66,19 @@ export const loginUser = async (
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const tokens = createToken(user);
-    //!2
-    res.cookie('accessToken', tokens.accessToken, {
-      httpOnly: true,
-      secure: true,
-      maxAge: 60 * 60 * 1000,
-      sameSite: 'none',
-    });
+    const { accessToken } = createToken(user);
 
-    res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: 'none',
-    });
+    setAccessTokenCookie(res, accessToken);
 
     return res.status(200).json({
       message: 'Logged in successfully',
       userId: user._id,
     });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return res
-        .status(500)
-        .json({ message: 'Error logging in', error: error.message });
-    }
+  } catch (error) {
     return res.status(500).json({
       message: 'Error logging in',
-      error: 'An unexpected error occurred',
+      error:
+        error instanceof Error ? error.message : 'An unexpected error occurred',
     });
   }
 };
@@ -103,42 +86,30 @@ export const loginUser = async (
 // Logout user
 export const logoutUser = (req: Request, res: Response): Response => {
   res.clearCookie('accessToken');
-  res.clearCookie('refreshToken');
   return res.status(200).json({ message: 'Logged out successfully' });
 };
 
-//! Refresh token
-export const refreshToken = async (
+// Middleware to check if token is expired
+export const authenticateToken = (
   req: Request,
   res: Response,
-): Promise<Response> => {
-  const refreshToken = req.cookies?.refreshToken;
-  if (!refreshToken) {
-    return res.status(401).json({ message: 'Refresh token missing' });
+  next: NextFunction,
+) => {
+  const token = req.cookies?.accessToken;
+
+  if (!token) {
+    return res
+      .status(401)
+      .json({ message: 'No token provided, please log in' });
   }
 
   try {
-    const decoded = jwt.verify(
-      refreshToken,
-      config.jwtSecret!,
-    ) as jwt.JwtPayload;
-
-    const user = await User.findById(decoded.id);
-    if (!user) {
-      return res.status(403).json({ message: 'Invalid refresh token' });
-    }
-
-    const tokens = createToken(user);
-    //!3
-    res.cookie('accessToken', tokens.accessToken, {
-      httpOnly: true,
-      secure: true,
-      maxAge: 15 * 60 * 1000,
-      sameSite: 'none',
-    });
-
-    return res.status(200).json({ message: 'Token refreshed successfully' });
+    const decoded = jwt.verify(token, config.jwtSecret!);
+    req.user = decoded; // No more type error here
+    next();
   } catch (error) {
-    return res.status(403).json({ message: 'Invalid refresh token' });
+    return res
+      .status(403)
+      .json({ message: 'Session expired, please log in again' });
   }
 };

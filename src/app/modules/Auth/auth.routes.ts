@@ -3,7 +3,6 @@ import {
   registerUser,
   loginUser,
   logoutUser,
-  refreshToken,
 } from './auth.controller';
 import { body } from 'express-validator';
 import rateLimit from 'express-rate-limit';
@@ -40,6 +39,6 @@ router.post(
 );
 
 router.post('/auth/logout', logoutUser);
-router.post('/auth/refresh-token', refreshToken);
+
 
 export default router;
