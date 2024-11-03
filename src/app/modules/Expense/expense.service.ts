@@ -135,6 +135,27 @@ const getExpenseSummaryByUserId = async (userId: string) => {
   };
 };
 
+//for the calender data and uder id will give me data
+const getExpensesByDate = async (
+  userId: string,
+  date: Date,
+): Promise<IExpense[]> => {
+  // Set the date range to the entire day (00:00:00 to 23:59:59)
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  // Find expenses within the date range for the specified user
+  const expenses = await Expense.find({
+    userId,
+    createdAt: { $gte: startOfDay, $lte: endOfDay },
+  }).sort({ createdAt: -1 });
+
+  return expenses;
+};
+
 export const expenseService = {
   createExpense,
   getAllExpenses,
@@ -144,4 +165,5 @@ export const expenseService = {
   getExpensesByUserId,
   getExpensesByDateRange,
   getExpenseSummaryByUserId,
+  getExpensesByDate,
 };

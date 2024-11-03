@@ -232,6 +232,45 @@ const getExpenseSummaryByUserId = async (
   }
 };
 
+// Get expenses for a specific user on a specific date
+const getExpensesByDate = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
+  const { userId } = req.params;
+  const { date } = req.body;
+
+  // Validate date parameter
+  if (!date) {
+    return res.status(400).json({ message: 'Date is required' });
+  }
+
+  const selectedDate = new Date(date);
+
+  // Check if date is valid
+  if (isNaN(selectedDate.getTime())) {
+    return res.status(400).json({ message: 'Invalid date format' });
+  }
+
+  try {
+    const expenses = await expenseService.getExpensesByDate(
+      userId,
+      selectedDate,
+    );
+
+    if (expenses.length === 0) {
+      return res.status(200).json({ message: 'No data found on this date' });
+    }
+
+    return res.status(200).json({
+      message: 'Expenses fetched successfully for the specified date',
+      data: expenses,
+    });
+  } catch (error) {
+    return handleError(res, error, 'Error fetching expenses by date');
+  }
+};
+
 // Grouped export
 export const expenseController = {
   createExpense,
@@ -242,4 +281,5 @@ export const expenseController = {
   getExpensesByUserId,
   getExpensesByDateRange,
   getExpenseSummaryByUserId,
+  getExpensesByDate
 };

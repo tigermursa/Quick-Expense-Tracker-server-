@@ -34,5 +34,7 @@ router.post(
   authenticateToken,
   expenseController.getExpensesByDateRange,
 );
+
+router.post('/expenses/calendar/user/:userId/date', expenseController.getExpensesByDate);
 // Export the router
 export default router;
