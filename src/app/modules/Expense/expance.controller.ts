@@ -232,7 +232,7 @@ const getExpenseSummaryByUserId = async (
   }
 };
 
-// Get expenses for a specific user on a specific date
+// Get expenses for a specific user on a specific date and calculate total amount
 const getExpensesByDate = async (
   req: Request,
   res: Response,
@@ -253,7 +253,7 @@ const getExpensesByDate = async (
   }
 
   try {
-    const expenses = await expenseService.getExpensesByDate(
+    const { expenses, totalAmount } = await expenseService.getExpensesByDate(
       userId,
       selectedDate,
     );
@@ -265,6 +265,7 @@ const getExpensesByDate = async (
     return res.status(200).json({
       message: 'Expenses fetched successfully for the specified date',
       data: expenses,
+      totalAmount, // Include total amount in response
     });
   } catch (error) {
     return handleError(res, error, 'Error fetching expenses by date');
@@ -281,5 +282,5 @@ export const expenseController = {
   getExpensesByUserId,
   getExpensesByDateRange,
   getExpenseSummaryByUserId,
-  getExpensesByDate
+  getExpensesByDate,
 };

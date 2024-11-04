@@ -139,7 +139,7 @@ const getExpenseSummaryByUserId = async (userId: string) => {
 const getExpensesByDate = async (
   userId: string,
   date: Date,
-): Promise<IExpense[]> => {
+): Promise<{ expenses: IExpense[]; totalAmount: number }> => {
   // Set the date range to the entire day (00:00:00 to 23:59:59)
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
@@ -153,7 +153,13 @@ const getExpensesByDate = async (
     createdAt: { $gte: startOfDay, $lte: endOfDay },
   }).sort({ createdAt: -1 });
 
-  return expenses;
+  // Calculate the total amount of expenses for the day
+  const totalAmount = expenses.reduce(
+    (sum, expense) => sum + expense.amount,
+    0,
+  );
+
+  return { totalAmount, expenses };
 };
 
 export const expenseService = {
